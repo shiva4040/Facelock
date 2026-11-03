@@ -1,0 +1,2 @@
+[console_scripts]
+facelock = main:main

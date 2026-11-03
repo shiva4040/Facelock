@@ -94,20 +94,8 @@ class MainWindow(QMainWindow):
         self.sidebar.maximize_clicked.connect(self._toggle_maximize)
         root_layout.addWidget(self.sidebar)
 
-        # 2. Content shell and persistent, in-app Live Activity
-        self.content_shell = QWidget(self.root)
-        content_layout = QVBoxLayout(self.content_shell)
-        content_layout.setContentsMargins(12, 10, 12, 0)
-        content_layout.setSpacing(6)
-
-        self.live_activity = LiveActivityBar(
-            self.config,
-            on_open_activity=lambda: self.sidebar.select_page(3),
-            parent=self.content_shell,
-        )
-        content_layout.addWidget(self.live_activity, 0, Qt.AlignHCenter)
-
-        self.content_stack = QStackedWidget(self.content_shell)
+        # 2. Content Stack on Right (780px)
+        self.content_stack = QStackedWidget(self.root)
         self.content_stack.setStyleSheet(f"background-color: {self.tokens.window_bg};")
 
         self.dashboard_page = DashboardPage(self.config, self.content_stack)
@@ -117,26 +105,23 @@ class MainWindow(QMainWindow):
         self.intruder_log_page = IntruderLogPage(self.config, self.content_stack)
         self.settings_page = SettingsPage(self.config, self.content_stack)
 
-        # Each page scrolls vertically on smaller windows instead of forcing
-        # the window contents beyond the visible client area.
-        self.page_scroll_areas = []
-        for page in (self.dashboard_page, self.owner_face_page, self.security_page,
-                     self.intruder_log_page, self.settings_page):
-            scroll = QScrollArea(self.content_stack)
-            scroll.setWidgetResizable(True)
-            scroll.setFrameShape(QScrollArea.NoFrame)
-            scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-            scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-            scroll.setStyleSheet("QScrollArea { border: none; background: transparent; } QWidget#qt_scrollarea_viewport { background: transparent; }")
-            page.setMinimumWidth(0)
-            scroll.setWidget(page)
-            self.content_stack.addWidget(scroll)
-            self.page_scroll_areas.append(scroll)
+        self.content_stack.addWidget(self.dashboard_page)
+        self.content_stack.addWidget(self.owner_face_page)
+        self.content_stack.addWidget(self.security_page)
+        self.content_stack.addWidget(self.intruder_log_page)
+        self.content_stack.addWidget(self.settings_page)
+
+        # Persistent hidden live_activity for backward compatibility
+        self.live_activity = LiveActivityBar(
+            self.config,
+            on_open_activity=lambda: self.sidebar.select_page(3),
+            parent=self.root,
+        )
+        self.live_activity.hide()
 
         clear_label_backplates(self.root)
 
-        content_layout.addWidget(self.content_stack, 1)
-        root_layout.addWidget(self.content_shell, 1)
+        root_layout.addWidget(self.content_stack, 1)
 
     def showEvent(self, event):
         super().showEvent(event)

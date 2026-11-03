@@ -40,7 +40,7 @@ class SecurityPage(QWidget):
 
     def _build_ui(self):
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(32, 28, 32, 28)
+        main_layout.setContentsMargins(34, 28, 34, 28)
         main_layout.setSpacing(16)
 
         # 1. Page Header
@@ -54,15 +54,15 @@ class SecurityPage(QWidget):
         h_sub.setStyleSheet("color: #5C5C63;")
         main_layout.addWidget(h_sub)
 
-        # 2. Two-Column Layout
+        # 2. Two-Column Layout (348px + 16px + 348px = 712px)
         cols_layout = QHBoxLayout()
-        cols_layout.setSpacing(24)
+        cols_layout.setSpacing(16)
 
         # ====================================================================
         # LEFT COLUMN: Protection Level & Recognition Parameters
         # ====================================================================
         left_col = QVBoxLayout()
-        left_col.setSpacing(14)
+        left_col.setSpacing(12)
 
         # Protection Level
         prot_lbl = QLabel(Strings.PROTECTION_LEVEL_TITLE, self)
@@ -71,6 +71,7 @@ class SecurityPage(QWidget):
         left_col.addWidget(prot_lbl)
 
         card_preset = MacCard(is_hero=False, is_dark=False, parent=self)
+        card_preset.setFixedSize(348, 102)
         cp_layout = QVBoxLayout(card_preset)
         cp_layout.setContentsMargins(16, 14, 16, 14)
         cp_layout.setSpacing(10)
@@ -100,6 +101,7 @@ class SecurityPage(QWidget):
         left_col.addWidget(rec_lbl)
 
         card_rec = MacCard(is_hero=False, is_dark=False, parent=self)
+        card_rec.setFixedSize(348, 188)
         cr_layout = QVBoxLayout(card_rec)
         cr_layout.setContentsMargins(0, 0, 0, 0)
         cr_layout.setSpacing(0)
@@ -164,13 +166,13 @@ class SecurityPage(QWidget):
 
         left_col.addWidget(card_rec)
         left_col.addStretch()
-        cols_layout.addLayout(left_col, stretch=1)
+        cols_layout.addLayout(left_col)
 
         # ====================================================================
         # RIGHT COLUMN: Behavior, Lock Method & Info Banner
         # ====================================================================
         right_col = QVBoxLayout()
-        right_col.setSpacing(14)
+        right_col.setSpacing(12)
 
         # Behavior Group
         beh_lbl = QLabel(Strings.BEHAVIOR_GROUP, self)
@@ -179,6 +181,7 @@ class SecurityPage(QWidget):
         right_col.addWidget(beh_lbl)
 
         card_beh = MacCard(is_hero=False, is_dark=False, parent=self)
+        card_beh.setFixedSize(348, 173)
         cb_layout = QVBoxLayout(card_beh)
         cb_layout.setContentsMargins(0, 0, 0, 0)
         cb_layout.setSpacing(0)
@@ -249,6 +252,7 @@ class SecurityPage(QWidget):
         right_col.addWidget(lock_lbl)
 
         card_lock = MacCard(is_hero=False, is_dark=False, parent=self)
+        card_lock.setFixedSize(348, 103)
         cl_layout = QVBoxLayout(card_lock)
         cl_layout.setContentsMargins(16, 14, 16, 14)
         cl_layout.setSpacing(10)
@@ -267,6 +271,7 @@ class SecurityPage(QWidget):
 
         # Info Banner
         info_banner = QFrame(self)
+        info_banner.setFixedSize(348, 68)
         info_banner.setStyleSheet("""
             QFrame {
                 background-color: #E6F0FC;
@@ -300,8 +305,8 @@ class SecurityPage(QWidget):
 
         right_col.addWidget(info_banner)
         right_col.addStretch()
-        cols_layout.addLayout(right_col, stretch=1)
 
+        cols_layout.addLayout(right_col)
         main_layout.addLayout(cols_layout)
 
     def _on_preset_changed(self, idx: int):

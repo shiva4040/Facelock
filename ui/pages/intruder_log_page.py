@@ -68,27 +68,21 @@ class ImageModal(QDialog):
 
 
 class SnapshotThumbnailCard(QWidget):
-    """Single card in the Stranger snapshots 4-up grid."""
+    """Single card in the Stranger snapshots 4-up grid matching Image 4 design exactly."""
     def __init__(self, score: float, date_str: str, image_path: str = "", on_click_cb=None, parent=None):
         super().__init__(parent)
         self.image_path = image_path
         self.on_click_cb = on_click_cb
-        self.setFixedWidth(160)
+        self.setFixedSize(168, 168)
         self.setCursor(Qt.PointingHandCursor)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(6)
+        layout.setSpacing(0)
 
-        # Image Container
+        # 1. Top Preview Container (Dark #2C2C30 with top rounded corners)
         self.img_container = QFrame(self)
-        self.img_container.setFixedSize(160, 110)
-        self.img_container.setStyleSheet("""
-            QFrame {
-                background-color: #2C2C30;
-                border-radius: 10px;
-            }
-        """)
+        self.img_container.setFixedSize(168, 112)
 
         # Overlay layout for Score badge
         c_layout = QVBoxLayout(self.img_container)
@@ -96,54 +90,92 @@ class SnapshotThumbnailCard(QWidget):
         c_layout.setSpacing(0)
 
         top_row = QHBoxLayout()
-        score_badge = Badge(f"Score {score:.2f}", variant="score", is_dark=False, parent=self.img_container)
+        # Custom dark pill badge "Score 0.XX"
+        score_badge = QLabel(f"Score {score:.2f}", self.img_container)
+        score_badge.setFont(ThemeTokens.get_font(size_pt=10, weight=600, tabular=True))
+        score_badge.setStyleSheet("""
+            QLabel {
+                background-color: #1D1D1F;
+                color: #FFFFFF;
+                border-radius: 9px;
+                padding: 2px 8px;
+            }
+        """)
         top_row.addWidget(score_badge)
         top_row.addStretch()
         c_layout.addLayout(top_row)
         c_layout.addStretch()
 
-        # If actual snapshot image exists, draw it inside container
+        # If actual snapshot image exists, draw it inside container with top rounded corners
         if image_path and os.path.exists(image_path):
             pix = QPixmap(image_path)
             if not pix.isNull():
-                scaled = pix.scaled(160, 110, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
+                scaled = pix.scaled(168, 112, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
                 def draw_custom_pix(e):
                     p = QPainter(self.img_container)
                     p.setRenderHint(QPainter.Antialiasing)
                     clip = QPainterPath()
-                    clip.addRoundedRect(QRectF(0, 0, 160, 110), 10, 10)
+                    clip.addRoundedRect(QRectF(0, 0, 168, 112), 12, 12)
                     p.setClipPath(clip)
                     p.drawPixmap(0, 0, scaled)
                     p.end()
                 self.img_container.paintEvent = draw_custom_pix
         else:
-            # Draw placeholder silhouette
+            # Draw placeholder silhouette matching reference Image 4
             def draw_silhouette(e):
                 p = QPainter(self.img_container)
                 p.setRenderHint(QPainter.Antialiasing)
+                clip = QPainterPath()
+                clip.addRoundedRect(QRectF(0, 0, 168, 112), 12, 12)
+                p.setClipPath(clip)
+
                 p.setPen(Qt.NoPen)
                 p.setBrush(QColor("#2C2C30"))
-                p.drawRoundedRect(QRectF(0, 0, 160, 110), 10, 10)
-                # Silhouette head & body
-                p.setBrush(QColor(255, 255, 255, 40))
-                p.drawEllipse(QRectF(65, 30, 30, 32))
-                p.drawArc(QRectF(45, 66, 70, 70), 30 * 16, 120 * 16)
+                p.drawRect(QRectF(0, 0, 168, 112))
+
+                # Silhouette head & body in #6C7280
+                p.setBrush(QColor(108, 114, 128))
+                # Head circle
+                p.drawEllipse(QRectF(66, 26, 36, 36))
+                # Body arc
+                body = QPainterPath()
+                body.moveTo(35, 112)
+                body.cubicTo(45, 68, 123, 68, 133, 112)
+                body.closeSubpath()
+                p.drawPath(body)
                 p.end()
             self.img_container.paintEvent = draw_silhouette
 
         layout.addWidget(self.img_container)
 
-        # Title: Stranger
-        title = QLabel(Strings.STRANGER_CARD_TITLE, self)
-        title.setFont(ThemeTokens.get_font(size_pt=13, weight=600))
-        title.setStyleSheet("color: #1D1D1F;")
-        layout.addWidget(title)
+        # 2. Bottom Label Container (White #FFFFFF with bottom rounded corners)
+        bot_box = QWidget(self)
+        bot_box.setFixedHeight(56)
+        bot_layout = QVBoxLayout(bot_box)
+        bot_layout.setContentsMargins(12, 6, 12, 6)
+        bot_layout.setSpacing(2)
 
-        # Timestamp
-        date_lbl = QLabel(date_str, self)
+        title = QLabel(Strings.STRANGER_CARD_TITLE, bot_box)
+        title.setFont(ThemeTokens.get_font(size_pt=13, weight=600))
+        title.setStyleSheet("color: #1D1D1F; background: transparent;")
+        bot_layout.addWidget(title)
+
+        date_lbl = QLabel(date_str, bot_box)
         date_lbl.setFont(ThemeTokens.get_font(size_pt=11))
-        date_lbl.setStyleSheet("color: #5C5C63;")
-        layout.addWidget(date_lbl)
+        date_lbl.setStyleSheet("color: #5C5C63; background: transparent;")
+        bot_layout.addWidget(date_lbl)
+
+        layout.addWidget(bot_box)
+
+    def paintEvent(self, event):
+        # Draw card outline and background
+        p = QPainter(self)
+        p.setRenderHint(QPainter.Antialiasing)
+        p.setPen(QPen(QColor("#E4E4E8"), 1.0))
+        p.setBrush(QBrush(QColor("#FFFFFF")))
+        p.drawRoundedRect(QRectF(0.5, 0.5, self.width() - 1, self.height() - 1), 12, 12)
+        p.end()
+        super().paintEvent(event)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton and self.on_click_cb:
@@ -205,8 +237,8 @@ class ActivityPage(QWidget):
 
     def _build_ui(self):
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(32, 28, 32, 28)
-        main_layout.setSpacing(16)
+        main_layout.setContentsMargins(34, 28, 34, 28)
+        main_layout.setSpacing(14)
 
         # 1. Header with Title + Subtitle and Top-Right Filter & Export Button
         header_row = QHBoxLayout()
@@ -227,29 +259,30 @@ class ActivityPage(QWidget):
 
         # Top-Right Filter Segmented + Export
         top_ctrls = QHBoxLayout()
-        top_ctrls.setSpacing(12)
+        top_ctrls.setSpacing(10)
         top_ctrls.setAlignment(Qt.AlignVCenter)
 
         self.filter_seg = SegmentedControl(["All", "Strangers", "Owner"], default_index=0, is_dark=False, parent=self)
-        self.filter_seg.setFixedWidth(200)
+        self.filter_seg.setFixedWidth(190)
         top_ctrls.addWidget(self.filter_seg)
 
         self.export_btn = PillButton("↓  Export", variant="secondary", is_dark=False, parent=self)
+        self.export_btn.setFixedSize(84, 30)
         self.export_btn.clicked.connect(self._export_activity)
         top_ctrls.addWidget(self.export_btn)
 
         header_row.addLayout(top_ctrls)
         main_layout.addLayout(header_row)
 
-        # 2. Section: Stranger snapshots (14px semibold)
+        # 2. Section: Stranger snapshots
         snap_lbl = QLabel(Strings.STRANGER_SNAPSHOTS_TITLE, self)
-        snap_lbl.setFont(ThemeTokens.get_font(size_pt=14, weight=600))
+        snap_lbl.setFont(ThemeTokens.get_font(size_pt=12, weight=600))
         snap_lbl.setStyleSheet("color: #1D1D1F;")
         main_layout.addWidget(snap_lbl)
 
         # 4-up Snapshot Grid
         snap_row = QHBoxLayout()
-        snap_row.setSpacing(16)
+        snap_row.setSpacing(14)
 
         # Check real intruders directory for latest snapshots
         files = []
@@ -273,19 +306,20 @@ class ActivityPage(QWidget):
             card = SnapshotThumbnailCard(score=score, date_str=date_str, image_path=img_path, on_click_cb=self._open_lightbox, parent=self)
             snap_row.addWidget(card)
 
-        snap_row.addStretch()
         main_layout.addLayout(snap_row)
 
-        # 3. Section: Recent events card
-        rec_lbl = QLabel(Strings.RECENT_EVENTS_TITLE, self)
-        rec_lbl.setFont(ThemeTokens.get_font(size_pt=14, weight=600))
-        rec_lbl.setStyleSheet("color: #1D1D1F;")
-        main_layout.addWidget(rec_lbl)
-
+        # 3. Section: Recent events card with header inside
         card_events = MacCard(is_hero=False, is_dark=False, parent=self)
+        card_events.setFixedSize(712, 166)
         ce_layout = QVBoxLayout(card_events)
-        ce_layout.setContentsMargins(0, 0, 0, 0)
+        ce_layout.setContentsMargins(0, 8, 0, 8)
         ce_layout.setSpacing(0)
+
+        # Card header title inside
+        rec_lbl = QLabel(Strings.RECENT_EVENTS_TITLE, card_events)
+        rec_lbl.setFont(ThemeTokens.get_font(size_pt=13, weight=600))
+        rec_lbl.setStyleSheet("color: #1D1D1F; padding: 4px 18px 4px 18px; background: transparent;")
+        ce_layout.addWidget(rec_lbl)
 
         # Table rows matching uploaded design
         r1 = RecentEventRow("Today, 09:03", "Unknown person", "Score 0.21", "locked", has_divider=True, parent=card_events)
@@ -301,7 +335,7 @@ class ActivityPage(QWidget):
 
         # 4. Footer: Encryption retention notice + Clear all button
         footer_row = QHBoxLayout()
-        footer_row.setSpacing(10)
+        footer_row.setSpacing(8)
 
         # Lock icon + Text
         lock_widget = QWidget(self)
@@ -318,11 +352,12 @@ class ActivityPage(QWidget):
 
         footer_lbl = QLabel(Strings.FOOTER_ENCRYPTED_RETENTION, self)
         footer_lbl.setFont(ThemeTokens.get_font(size_pt=11))
-        footer_lbl.setStyleSheet("color: #5C5C63;")
+        footer_lbl.setStyleSheet("color: #5C5C63; background: transparent;")
         footer_row.addWidget(footer_lbl)
         footer_row.addStretch()
 
         clear_btn = PillButton(f"🗑  {Strings.BTN_CLEAR_ALL}", variant="danger", is_dark=False, parent=self)
+        clear_btn.setFixedSize(96, 30)
         clear_btn.clicked.connect(self._clear_all_events)
         footer_row.addWidget(clear_btn)
 

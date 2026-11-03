@@ -1,6 +1,6 @@
 # FaceLock 🛡️
 
-> **macOS-styled native desktop application that guards your laptop using real-time face recognition.**
+> **Native, macOS-styled facial recognition security application for your laptop on Windows and Linux.**
 
 ---
 
@@ -13,234 +13,197 @@
 
 ---
 
-FaceLock continuously protects your workstation from shoulder-surfers and unauthorized physical access using state-of-the-art on-device computer vision models (**YuNet** face detection + **SFace** facial recognition). Crafted with **PySide6 (Qt 6)** and styled to mirror **macOS Ventura / Sonoma System Settings**, it delivers native fluid animations, rounded frosted glass surfaces, and a non-focus-stealing HUD overlay.
+## 🚀 Installation & Setup
+
+FaceLock includes automated native installers for both **Windows** and **Linux**.
+
+### 🪟 Windows Installation (1-Click)
+
+1. **Clone or Download** this repository:
+   ```cmd
+   git clone https://github.com/your-username/facelock.git
+   cd facelock
+   ```
+2. **Double-click `install.bat`** (or run from Command Prompt / PowerShell):
+   ```cmd
+   install.bat
+   ```
+   *The installer will:*
+   - Check your Python 3.10+ installation.
+   - Automatically configure an isolated virtual environment (`.env`).
+   - Install dependencies (PySide6, OpenCV, Cryptography).
+   - Pre-download the on-device neural network models (**YuNet** and **SFace**).
+   - Create a **Desktop Shortcut** (`FaceLock.lnk`) and a **Start Menu Shortcut** with the high-resolution app icon.
+   - Register the `facelock` command.
+
+3. **Launching**:
+   - Double-click the **FaceLock** icon on your Desktop or Start Menu.
+   - Or run `run.bat` (interactive with console log) or `run_silent.bat` (silent background tray mode).
+
+4. **Uninstalling**:
+   - Run `uninstall.bat` to cleanly remove all shortcuts, processes, and optionally wipe biometric embeddings.
 
 ---
 
-## 📸 Screenshots & Previews
+### 🐧 Linux Installation (1-Click)
 
-```
-+--------------------------------------------------------------------------------+
-|  ● ● ●   FaceLock                                                              |
-| +--------------+  +----------------------------------------------------------+ |
-| | [Shield]     |  | Dashboard                                                | |
-| |  Dashboard   |  | +------------------------------------------------------+ | |
-| | [Face]       |  | |  ● Protected                                [ Pause ] | | |
-| |  Owner Face  |  | |    Guarding laptop with YuNet & SFace.               | | |
-| | [Sliders]    |  | +------------------------------------------------------+ | |
-| |  Security    |  |                                                          | |
-| | [History]    |  | [ Last Check ]        [ Checks Today ]  [ Intruders ]    | |
-| |  Intruder Log|  |   10:15:20 AM               142              0           | |
-| | [Gear]       |  |                                                          | |
-| |  Settings    |  | +------------------------------------------------------+ | |
-| |              |  | | Live Camera Preview                   (Toggle [ OFF ])| | |
-| |              |  | | [ Preview disabled for privacy. LED stays off ]       | | |
-| |              |  | +------------------------------------------------------+ | |
-| +--------------+  +----------------------------------------------------------+ |
-+--------------------------------------------------------------------------------+
-```
+Supported distributions: Ubuntu, Debian, Fedora, Arch Linux, Pop!_OS, openSUSE, Linux Mint.
 
+1. **Clone or Download** this repository:
+   ```bash
+   git clone https://github.com/your-username/facelock.git
+   cd facelock
+   ```
+2. **Run the Linux installer**:
+   ```bash
+   chmod +x install.sh
+   ./install.sh
+   ```
+   *The installer will:*
+   - Verify Python 3.10+ and camera device permissions (`/dev/video*`).
+   - Create an isolated virtual environment (`.env`).
+   - Install required dependencies.
+   - Pre-download the YuNet and SFace neural network models to `~/.facelock/models/`.
+   - Install the executable launcher to `~/.local/bin/facelock`.
+   - Install high-resolution application icons to `~/.local/share/icons/hicolor/` and `~/.local/share/pixmaps/`.
+   - Install the **FreeDesktop / XDG desktop application entry** (`facelock.desktop`) so FaceLock appears in your GNOME / KDE / XFCE Application Menu.
+   - Optionally add a desktop launcher on `~/Desktop/`.
+
+3. **Launching**:
+   - Click **FaceLock** in your Application Menu / Dash.
+   - Or run in terminal: `facelock` or `./run.sh`.
+
+4. **Uninstalling**:
+   ```bash
+   chmod +x uninstall.sh
+   ./uninstall.sh
+   ```
+   Cleanly removes launchers, desktop entries, and icon assets.
+
+---
+
+### 🐍 Standard Python Package Installation (Cross-Platform)
+
+You can also install FaceLock directly into your current Python environment using `pip`:
+
+```bash
+pip install .
+# Or editable mode for development:
+pip install -e .
 ```
-+----------------------------------------------------------+
-|                 HUD Notification Overlay                 |
-|                                                          |
-|                      [  ✓  ]                             |
-|                    Welcome Back                          |
-|                   Owner verified                         |
-|                                                          |
-+----------------------------------------------------------+
+Then launch simply with:
+```bash
+facelock
 ```
 
 ---
 
-## ✨ Features
+## 📦 Building Standalone Executables (Windows & Linux)
 
-- **macOS Ventura/Sonoma Native Look & Feel**:
-  - Frameless rounded window (`radius 14px`) with soft drop shadows and 1px hairline borders.
-  - Windows 11 **Mica / Acrylic** translucent backdrop via DWM attributes (`ctypes.windll.dwmapi`).
+To compile FaceLock into a completely standalone, redistributable binary without requiring users to have Python installed:
+
+```bash
+python scripts/build_executable.py
+```
+- **Windows output**: `dist/FaceLock/FaceLock.exe`
+- **Linux output**: `dist/FaceLock/FaceLock`
+
+Automated CI/CD release builds for both platforms are also configured in [`.github/workflows/build_releases.yml`](.github/workflows/build_releases.yml).
+
+---
+
+## ✨ Key Features
+
+- **macOS Ventura/Sonoma Native Aesthetic**:
+  - Frameless rounded window (`radius 12px`) with soft drop shadows and 1px hairline borders.
+  - Windows 11 **Mica / Acrylic** translucent backdrop via DWM attributes (`ctypes.windll.dwmapi`) with solid fallback on Linux.
   - Interactive **traffic-light window buttons** (red/yellow/green) with hover symbols.
-  - Custom sliding pill toggles (`MacToggle`), inset grouped settings cards (`MacCard`), and pill buttons.
-  - Automatic system light/dark theme tracking.
+  - Custom sliding pill toggles (`MacToggle`), inset grouped settings cards (`MacCard`), segmented presets, and pill buttons.
+  - Automatic system light/dark theme tracking with contrast ratios $\ge 4.5:1$ (WCAG AA).
 - **Hardware-Friendly Camera Monitoring**:
-  - Periodic **open-grab-release** camera cycle (default every 3 seconds) keeps your webcam LED indicator turned off most of the time.
+  - Periodic **open-grab-release** camera cycle (default every 3 seconds) keeps your webcam LED indicator turned off between checks to preserve privacy.
   - Optional live camera preview with real-time bounding box annotations and cosine confidence scores.
 - **Guided Face Enrollment**:
-  - Circular camera viewport with an animated 360° concentric progress ring (`0 to 20` samples).
-  - Head-pose guidance prompts: *"Look straight"*, *"Turn slightly left"*, *"Turn slightly right"*, *"Tilt up"*, *"Smile"*.
-  - Rate-limited and validated sampling to ensure high embedding diversity.
+  - 300px circular camera viewport with an animated 360° concentric progress ring (`0 to 20` samples) and dashed oval head guide.
+  - Real-time Capture Quality checklist: Lighting, Face Position, Sharpness, and Single Face verification.
 - **Encrypted at Rest**:
-  - Owner embeddings are encrypted with **Fernet (AES-128-CBC)**.
-  - Encryption keys are stored in the OS credential store via **`keyring`** (Windows Credential Manager / Linux Secret Service) with a local secured fallback.
+  - Owner embeddings are encrypted with **AES-128-CBC / Fernet**.
+  - Encryption keys are secured in the OS credential store via Windows DPAPI / Linux Secret Service with cryptographic HMAC-SHA256 configuration signing.
   - Zero cloud dependencies — **100% local and offline**.
-- **Intruder Snapping & Evidence Log**:
-  - Automatically captures high-resolution intruder snapshots to `~/.facelock/intruders/` upon bad strikes.
-  - Gallery view with timestamp tags, click-to-enlarge lightbox modal, export to directory, and deletion.
+- **Intruder Snapping & Activity Log**:
+  - Automatically captures high-resolution intruder snapshots to `~/.facelock/intruders/` upon consecutive strikes.
+  - Gallery view with score badges, timestamps, lightbox preview, directory export, and one-click wiping.
 - **Come-in / Come-out HUD Popup**:
-  - Non-focus-stealing (`Qt.WindowDoesNotAcceptFocus`), frameless floating card centered on the active cursor display.
-  - 5 operational states:
-    1. **Welcome back** (green checkmark) when owner returns.
-    2. **Owner left** (gray user icon) when owner steps away.
-    3. **Unknown person detected** (amber triangle) on first strike.
-    4. **Locking in 3s...** (red badge) on consecutive strike with an interactive **Cancel** button.
-    5. **Locked** (red shield) upon session lock.
-  - Built-in 10-second debounce prevents notification spamming.
-- **Single Instance & System Tray**:
-  - Protected by `QLockFile` at `~/.facelock/facelock.lock`.
-  - Closing the main window minimizes to the system tray with a dynamic status badge icon.
+  - Non-focus-stealing (`Qt.WindowDoesNotAcceptFocus`), frameless 280x165 floating card centered on the active cursor display with 2.5s auto-dismiss.
+  - 48px circle vector icons for: *Welcome back*, *Owner away*, *Unknown person warning*, and *Locking countdown* (with interactive Cancel pill button and draining 4px red progress bar).
+- **Process Watchdog & Single Instance**:
+  - Single-instance protection via `QLockFile` at `~/.facelock/facelock.lock`.
+  - Independent second-process watchdog locks workstation if FaceLock is forcefully killed.
 
 ---
 
-## 🏗️ Project Architecture
+## 🧪 Automated Testing
+
+FaceLock includes a 53-test test suite covering mathematical matching, boundary thresholds, DPAPI crypto, HMAC signatures, watchdog detection, and UI components:
+
+```bash
+python run_tests.py
+# Or directly via pytest:
+pytest tests/ -v
+```
+
+---
+
+## 🏗️ Repository Architecture
 
 ```
-facelock/
+FaceLock/
+├── .github/workflows/
+│   └── build_releases.yml       # Automated GitHub Actions cross-platform release CI
 ├── assets/
-│   ├── icon.ico                 # Multi-resolution Windows app icon
-│   ├── icon.png                 # High-resolution 256x256 app icon
-│   ├── icons/                   # Vector navigation & status icons
-│   └── sounds/                  # Subtle macOS-style alert chimes
-│       ├── welcome.wav          # Warm ascending major chord
-│       ├── warning.wav          # Soft marimba warning tone
-│       └── lock.wav             # Low mechanical latch click
+│   ├── icon.ico                 # Multi-resolution Windows app icon (16x16 to 256x256)
+│   ├── icon.png                 # High-resolution 256x256 app badge
+│   └── sounds/                  # macOS-style alert chimes (lock.wav, warning.wav, welcome.wav)
 ├── core/
-│   ├── __init__.py
-│   ├── config.py                # Configuration dataclass (~/.facelock/config.json)
-│   ├── crypto.py                # Fernet + Keyring OS credential encryption
-│   ├── detector.py              # YuNet & SFace models, downloader, lighting checks
-│   ├── events.py                # Central Qt signal bus (decoupled event architecture)
-│   ├── enroll.py                # Guided enrollment QThread worker
+│   ├── config.py                # AppConfig, HMAC signing, DPAPI key derivation
+│   ├── crypto.py                # AES/Fernet encryption for biometric embeddings
+│   ├── decision.py              # PureDecisionEngine (evaluates frame results to actions)
+│   ├── detector.py              # YuNet face detector + SFace face recognizer ONNX engine
+│   ├── enroll.py                # Guided 20-sample owner enrollment worker
+│   ├── events.py                # Decoupled Qt signal event bus
 │   ├── lock.py                  # Windows LockWorkStation & Linux loginctl adapters
-│   └── worker.py                # Background monitoring QThread with camera loop
+│   ├── watchdog.py              # Anti-kill security watchdog process
+│   └── worker.py                # Camera QThread grab-release monitoring loop
+├── docs/screenshots/            # High-resolution application screenshots
+├── scripts/
+│   ├── build_executable.py      # Standalone PyInstaller binary builder
+│   ├── create_shortcuts.py      # Windows shortcut generator
+│   ├── generate_assets.py       # Asset & sound generator
+│   └── remove_shortcuts.py      # Windows shortcut cleanup
+├── tests/                       # 53 automated unit and integration tests
 ├── ui/
-│   ├── __init__.py
-│   ├── main_window.py           # Frameless main window coordinating pages & sidebar
-│   ├── sidebar.py               # macOS System Settings sidebar with traffic lights
-│   ├── hud_popup.py             # Always-on-top non-stealing HUD notification card
-│   ├── tray.py                  # Dynamic system tray icon with context menu
-│   ├── theme.py                 # macOS palettes, dark/light detector, global QSS
-│   ├── window_effects.py        # Windows 11 DWM Mica / Acrylic ctypes bindings
-│   ├── components/
-│   │   ├── __init__.py
-│   │   ├── camera_view.py       # Camera feed with face tracking boxes & scores
-│   │   ├── card.py              # Inset grouped cards & settings row components
-│   │   ├── pill_button.py       # Primary, secondary, and danger pill buttons
-│   │   ├── ring_progress.py     # Circular antialiased progress ring (0-20)
-│   │   ├── toggle.py            # Animated sliding iOS/macOS toggle switch
-│   │   └── traffic_lights.py    # Red / Yellow / Green macOS window control buttons
-│   └── pages/
-│       ├── __init__.py
-│       ├── dashboard_page.py    # Status card, metrics, camera toggle, protect/pause
-│       ├── owner_face_page.py   # Guided enrollment & face profile management
-│       ├── security_page.py     # Threshold, strikes, interval, shoulder-surfing
-│       ├── intruder_log_page.py # Photo grid, click-to-enlarge modal, export, delete
-│       └── settings_page.py     # Startup, camera index, theme, sounds, reset
-├── tests/
-│   ├── test_stage1.py           # Core, crypto, lock, config, and tray verification
-│   ├── test_stage2.py           # HUD popup, state transitions, and countdown test
-│   └── test_stage3_4.py         # Full UI components, pages, and MainWindow test
-├── main.py                      # Application entrypoint & single-instance guard
-├── facelock.spec                # PyInstaller specification for Windows build
+│   ├── components/              # MacToggle, Segmented, PillButton, MacCard, StatusRing, etc.
+│   ├── pages/                   # Dashboard, Owner Face, Security, Activity, Settings
+│   ├── hud_popup.py             # 280x165 frameless HUD notification overlay
+│   ├── live_activity.py         # Dynamic Island style activity widget
+│   ├── main_window.py           # 1000x640 frameless Sonoma window shell
+│   ├── overlay_lock.py          # Privacy overlay screen
+│   ├── sidebar.py               # 220px macOS System Settings sidebar
+│   ├── strings.py               # Centralized UI string constants (zero em dashes)
+│   ├── theme.py                 # WCAG AA design tokens & font metrics
+│   ├── tray.py                  # Windows system tray integration
+│   └── window_effects.py        # Windows 11 Mica / Acrylic DWM styling
+├── facelock.spec                # PyInstaller packaging specification
+├── install.bat                  # Windows 1-click installer
+├── install.sh                   # Linux 1-click installer (XDG compliant)
+├── main.py                      # Application entry point with single-instance guard
+├── pyproject.toml               # PEP 517/621 package metadata
 ├── requirements.txt             # Pinned Python package dependencies
-└── README.md                    # Documentation & setup instructions
+├── run.bat                      # Windows interactive launcher
+├── run.sh                       # Linux launcher
+├── run_silent.bat               # Windows background launcher
+├── run_tests.py                 # Test runner script
+├── setup.py                     # Setuptools packaging setup
+└── uninstall.bat                # Windows 1-click uninstaller
+└── uninstall.sh                 # Linux 1-click uninstaller
 ```
-
----
-
-## 🚀 Quickstart & Installation
-
-### 1. Prerequisites
-- **Python 3.11+** (compatible through Python 3.14)
-- Webcam (built-in or USB optical sensor)
-- **Windows 10/11** or **Linux** (GNOME, KDE, or systemd loginctl)
-
-### 2. Environment Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/your-username/facelock.git
-cd facelock
-
-# Create and activate a virtual environment
-python -m venv .env
-
-# Windows PowerShell:
-.\.env\Scripts\Activate.ps1
-
-# Linux / macOS:
-source .env/bin/activate
-
-# Install required dependencies
-pip install -r requirements.txt
-```
-
-### 3. Run FaceLock
-
-You can launch FaceLock using the one-click batch scripts or directly via terminal:
-
-- **Double-click `run.bat`** (Recommended): Automatically activates the virtual environment and starts FaceLock (keeps terminal open if any error occurs).
-- **Double-click `run_silent.bat`**: Starts FaceLock silently in the background / system tray without any console window.
-- **Via Terminal**:
-  ```bash
-  python main.py
-  ```
-
-*On first launch, FaceLock will automatically fetch the official OpenCV YuNet face detection (`~350KB`) and SFace recognition (`~37MB`) ONNX models into `~/.facelock/models/`.*
-
----
-
-## 🧪 Running the Test Suite
-
-FaceLock includes a complete multi-stage test suite that validates all core functions and headless UI rendering:
-
-```bash
-# Stage 1: Core, Cryptography, Lock Simulation, Configuration & Tray
-python tests/test_stage1.py
-
-# Stage 2: HUD Popup, 5-State Vector Icons & Countdown Actions
-python tests/test_stage2.py
-
-# Stage 3 & 4: UI Components, macOS Settings Pages & MainWindow
-python tests/test_stage3_4.py
-```
-
----
-
-## 📦 Building Standalone Apps (Windows & Linux)
-
-The `Build native apps` GitHub Actions workflow builds a Windows x64 app folder and a Linux x64 app folder from their native runners. Pull requests and pushes to `main` build downloadable workflow artifacts. Pushing a version tag (for example, `v1.0.0`) also publishes both packages as GitHub Release assets.
-
-To build locally on Windows or Linux, install `requirements.txt` and run:
-
-```bash
-python -m pip install -r requirements.txt
-python -m PyInstaller --noconfirm --clean facelock.spec
-```
-
-Windows output: `dist/FaceLock/FaceLock.exe`.
-
-Linux output: `dist/FaceLock/FaceLock`. The CI release archive includes `run-facelock.sh` to launch it after extraction.
-
----
-
-## ⚠️ Known OS Limitations & Future Roadmap
-
-> [!IMPORTANT]
-> **Windows Lock Screen Behavior**:
-> A user-space desktop application cannot programmatically unlock the native Windows lock screen (`Winlogon / LogonUI`) for security and architectural boundary reasons enforced by Microsoft Windows.
->
-> When FaceLock triggers a lock, it invokes the native Windows API `LockWorkStation()`. Unlocking the computer remains secured by your standard Windows Hello face / PIN / password.
-
-### 🔮 Planned Future Feature: Overlay Lock Mode
-In an upcoming release, FaceLock will provide an optional **"Overlay Lock Mode"**:
-- A borderless, fullscreen, always-on-top privacy blackout screen that covers all connected monitors.
-- Unlike the OS logon screen, this overlay *remains in user space* and can continuously scan for the owner's face.
-- Automatically dismisses the blackout shield the instant the owner's face matches, with a Master Password fallback input.
-
----
-
-## 🔒 Security & Privacy Notice
-
-- **No Cloud Communication**: FaceLock is strictly 100% offline. No facial frames, embeddings, or metadata are ever transmitted across the network.
-- **Encrypted Facial Vectors**: Raw 128-dimensional embedding vectors are encrypted using Fernet (AES-128-CBC with HMAC-SHA256) and saved in `~/.facelock/owner.enc`.
-- **Credential Storage**: Encryption keys are persisted in the Windows Credential Manager or Linux Secret Service via the Python `keyring` API.
-

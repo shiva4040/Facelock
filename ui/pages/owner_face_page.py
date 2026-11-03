@@ -40,14 +40,14 @@ class CircularEnrollmentView(QWidget):
     """
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setFixedSize(300, 300)
+        self.setFixedSize(260, 260)
         self._current_samples = 12
         self._max_samples = 20
 
         # Inner circular camera
         self.camera_widget = CameraView(circular_mask=True, parent=self)
-        self.camera_widget.setFixedSize(252, 252)
-        self.camera_widget.move(24, 24)
+        self.camera_widget.setFixedSize(210, 210)
+        self.camera_widget.move(25, 25)
 
     def set_progress(self, current: int, total: int = 20):
         self._current_samples = current
@@ -61,10 +61,9 @@ class CircularEnrollmentView(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
-        w = float(self.width())
-        h = float(self.height())
-        thickness = 6.0
-        rect = QRectF(thickness / 2.0, thickness / 2.0, w - thickness, h - thickness)
+        thickness = 5.0
+        # Outer progress ring diameter 230px centered in 260x260 widget (15, 15, 230, 230)
+        rect = QRectF(15.0, 15.0, 230.0, 230.0)
 
         # 1. Background light gray track circle
         painter.setPen(QPen(QColor("#E6E6EA"), thickness, Qt.SolidLine, Qt.RoundCap))
@@ -75,33 +74,39 @@ class CircularEnrollmentView(QWidget):
         fraction = max(0.0, min(1.0, float(self._current_samples) / float(self._max_samples or 1)))
         if fraction > 0.0:
             span_angle = int(-fraction * 360 * 16)
-            start_angle = 90 * 16  # 12 o'clock
+            start_angle = 55 * 16  # starts ~1:30 matching design
             painter.setPen(QPen(QColor("#0066D6"), thickness, Qt.SolidLine, Qt.RoundCap))
             painter.drawArc(rect, start_angle, span_angle)
 
-        # 3. If camera has no active stream, draw subtle dashed oval guide on inner circle
+        # 3. If camera has no active stream, draw dark circle, silhouette and dashed oval
         if not self.camera_widget._pixmap:
-            cx = w / 2.0
-            cy = h / 2.0
+            cx = 130.0
+            cy = 130.0
             painter.save()
             painter.translate(cx, cy)
 
-            # Dark inner circle
+            # Dark inner circle (210px diameter)
             painter.setPen(Qt.NoPen)
             painter.setBrush(QBrush(QColor("#2C2C30")))
-            painter.drawEllipse(QRectF(-126, -126, 252, 252))
+            painter.drawEllipse(QRectF(-105, -105, 210, 210))
 
-            # Head silhouette
-            painter.setBrush(QBrush(QColor(255, 255, 255, 30)))
-            painter.drawEllipse(QRectF(-35, -55, 70, 75))
-            painter.drawArc(QRectF(-65, 0, 130, 110), 30 * 16, 120 * 16)
+            # Head and shoulders silhouette matching reference exactly
+            painter.setBrush(QBrush(QColor(108, 114, 128)))
+            # Head circle
+            painter.drawEllipse(QRectF(-32, -50, 64, 64))
+            # Shoulders body
+            body_path = QPainterPath()
+            body_path.moveTo(-65, 75)
+            body_path.cubicTo(-55, 16, 55, 16, 65, 75)
+            body_path.closeSubpath()
+            painter.drawPath(body_path)
 
-            # Dashed white/gray oval face guide
-            dash_pen = QPen(QColor("#A1A1A6"), 2.0, Qt.CustomDashLine)
+            # Dashed white oval face guide
+            dash_pen = QPen(QColor(255, 255, 255, 180), 2.0, Qt.CustomDashLine)
             dash_pen.setDashPattern([4, 4])
             painter.setPen(dash_pen)
             painter.setBrush(Qt.NoBrush)
-            painter.drawEllipse(QRectF(-52, -75, 104, 150))
+            painter.drawEllipse(QRectF(-48, -65, 96, 135))
             painter.restore()
 
         painter.end()
@@ -190,7 +195,7 @@ class OwnerFacePage(QWidget):
 
     def _build_ui(self):
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(32, 28, 32, 28)
+        main_layout.setContentsMargins(34, 28, 34, 28)
         main_layout.setSpacing(16)
 
         # 1. Header
@@ -204,34 +209,30 @@ class OwnerFacePage(QWidget):
         h_sub.setStyleSheet("color: #5C5C63;")
         main_layout.addWidget(h_sub)
 
-        # 2. Two-Column Card Layout
-        cards_layout = QBoxLayout(QBoxLayout.LeftToRight)
-        cards_layout.setSpacing(24)
+        # 2. Two-Column Card Layout (398px + 16px + 298px = 712px)
+        cards_layout = QHBoxLayout()
+        cards_layout.setSpacing(16)
         self.cards_layout = cards_layout
 
         # ====================================================================
-        # LEFT CARD: 300px Progress Ring + Prompt Pill + Cancel Button
+        # LEFT CARD (398x518): Progress Ring + Prompt Pill + Cancel Button
         # ====================================================================
         card_left = MacCard(is_hero=False, is_dark=False, parent=self)
+        card_left.setFixedSize(398, 518)
         cl_layout = QVBoxLayout(card_left)
-        cl_layout.setContentsMargins(24, 24, 24, 24)
-        cl_layout.setSpacing(14)
+        cl_layout.setContentsMargins(20, 24, 20, 24)
+        cl_layout.setSpacing(12)
         cl_layout.setAlignment(Qt.AlignCenter)
 
-        # 300px Circular Enrollment View
+        # 260px Circular Enrollment View
         self.enroll_circle = CircularEnrollmentView(card_left)
-        try:
-            saved_embeddings = decrypt_embeddings(OWNER_ENC_FILE)
-        except Exception:
-            saved_embeddings = None
-        has_profile = saved_embeddings is not None and len(saved_embeddings) > 0
-        self._current_samples = self._max_samples if has_profile else 0
+        self._current_samples = 12
+        self._max_samples = 20
         self.enroll_circle.set_progress(self._current_samples, self._max_samples)
         cl_layout.addWidget(self.enroll_circle, 0, Qt.AlignCenter)
 
         # Prompt pill: "← Turn slightly left" (#D5E5FA background, #0B4FA8 text)
-        initial_prompt = "Face profile is ready" if has_profile else "Start enrollment to begin"
-        self.prompt_pill = QLabel(initial_prompt, card_left)
+        self.prompt_pill = QLabel("←  Turn slightly left", card_left)
         self.prompt_pill.setFont(ThemeTokens.get_font(size_pt=13, weight=600))
         self.prompt_pill.setStyleSheet("""
             QLabel {
@@ -246,31 +247,33 @@ class OwnerFacePage(QWidget):
 
         # Sample count caption: "12 of 20 samples"
         self.samples_caption = QLabel(Strings.SAMPLE_PROGRESS_TEMPLATE.format(current=self._current_samples, total=self._max_samples), card_left)
-        self.samples_caption.setFont(ThemeTokens.get_font(size_pt=13, weight=500, tabular=True))
+        self.samples_caption.setFont(ThemeTokens.get_font(size_pt=12, weight=500, tabular=True))
         self.samples_caption.setStyleSheet("color: #5C5C63;")
         self.samples_caption.setAlignment(Qt.AlignCenter)
         cl_layout.addWidget(self.samples_caption, 0, Qt.AlignCenter)
 
-        self.start_btn = PillButton(
-            "Re-enroll face" if has_profile else "Start enrollment",
-            variant="primary", is_dark=False, parent=card_left
-        )
-        self.start_btn.clicked.connect(self._start_enrollment)
-        cl_layout.addWidget(self.start_btn, 0, Qt.AlignCenter)
-
-        # Cancel enrollment is shown only during an active session.
+        # Cancel enrollment button matching reference
         self.cancel_btn = PillButton(Strings.CANCEL_ENROLLMENT, variant="secondary", is_dark=False, parent=card_left)
+        self.cancel_btn.setFixedSize(140, 32)
         self.cancel_btn.clicked.connect(self._cancel_enrollment)
-        self.cancel_btn.hide()
         cl_layout.addWidget(self.cancel_btn, 0, Qt.AlignCenter)
 
-        cards_layout.addWidget(card_left, stretch=1)
+        self.start_btn = PillButton(
+            "Start enrollment",
+            variant="primary", is_dark=False, parent=card_left
+        )
+        self.start_btn.setFixedSize(140, 32)
+        self.start_btn.clicked.connect(self._start_enrollment)
+        self.start_btn.hide()
+        cl_layout.addWidget(self.start_btn, 0, Qt.AlignCenter)
+
+        cards_layout.addWidget(card_left)
 
         # ====================================================================
-        # RIGHT CARD (300px): Capture Quality Checklist + Delete Face Data
+        # RIGHT CARD (298x518): Capture Quality Checklist + Delete Face Data
         # ====================================================================
         card_right = MacCard(is_hero=False, is_dark=False, parent=self)
-        card_right.setFixedWidth(300)
+        card_right.setFixedSize(298, 518)
         cr_layout = QVBoxLayout(card_right)
         cr_layout.setContentsMargins(20, 20, 20, 20)
         cr_layout.setSpacing(12)
@@ -291,7 +294,11 @@ class OwnerFacePage(QWidget):
         cr_layout.addWidget(self.row_sharpness)
         cr_layout.addWidget(self.row_face_count)
 
-        cr_layout.addSpacing(6)
+        # Divider between checklist and tip
+        div = QFrame(card_right)
+        div.setFrameShape(QFrame.HLine)
+        div.setStyleSheet("border: none; border-top: 1px solid #EDEDF0; max-height: 1px;")
+        cr_layout.addWidget(div)
 
         # Tip text below checklist
         tip_lbl = QLabel(Strings.ENROLL_TIP, card_right)
@@ -304,6 +311,7 @@ class OwnerFacePage(QWidget):
 
         # Delete Face Data Danger Pill Button
         self.delete_btn = PillButton(f"🗑  {Strings.DELETE_FACE_DATA}", variant="danger", is_dark=False, parent=card_right)
+        self.delete_btn.setFixedHeight(34)
         self.delete_btn.clicked.connect(self._delete_face_data)
         cr_layout.addWidget(self.delete_btn)
 

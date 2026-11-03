@@ -186,7 +186,7 @@ class DashboardPage(QWidget):
 
     def _build_ui(self):
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(32, 28, 32, 28)
+        main_layout.setContentsMargins(34, 28, 34, 28)
         main_layout.setSpacing(16)
 
         # 1. Page Header
@@ -202,6 +202,7 @@ class DashboardPage(QWidget):
 
         # 2. Hero Card (16px radius, padding 20-24px)
         hero_card = MacCard(is_hero=True, is_dark=False, parent=self)
+        hero_card.setFixedSize(712, 132)
         hero_layout = QHBoxLayout(hero_card)
         hero_layout.setContentsMargins(22, 20, 22, 20)
         hero_layout.setSpacing(20)
@@ -253,13 +254,14 @@ class DashboardPage(QWidget):
 
         # 3. Stat Row (3 Cards side by side)
         stat_row = QHBoxLayout()
-        stat_row.setSpacing(16)
+        stat_row.setSpacing(14)
 
         # Card 1: Checks today
         card_checks = MacCard(is_hero=False, is_dark=False, parent=self)
+        card_checks.setFixedSize(228, 78)
         c1 = QVBoxLayout(card_checks)
-        c1.setContentsMargins(16, 14, 16, 14)
-        c1.setSpacing(4)
+        c1.setContentsMargins(16, 12, 16, 12)
+        c1.setSpacing(2)
         lbl1 = QLabel("Checks today", card_checks)
         lbl1.setFont(ThemeTokens.get_font(size_pt=12, weight=500))
         lbl1.setStyleSheet("color: #5C5C63;")
@@ -272,9 +274,10 @@ class DashboardPage(QWidget):
 
         # Card 2: Strangers flagged (RED when > 0)
         card_strangers = MacCard(is_hero=False, is_dark=False, parent=self)
+        card_strangers.setFixedSize(228, 78)
         c2 = QVBoxLayout(card_strangers)
-        c2.setContentsMargins(16, 14, 16, 14)
-        c2.setSpacing(4)
+        c2.setContentsMargins(16, 12, 16, 12)
+        c2.setSpacing(2)
         lbl2 = QLabel("Strangers flagged", card_strangers)
         lbl2.setFont(ThemeTokens.get_font(size_pt=12, weight=500))
         lbl2.setStyleSheet("color: #5C5C63;")
@@ -287,9 +290,10 @@ class DashboardPage(QWidget):
 
         # Card 3: Last check
         card_last = MacCard(is_hero=False, is_dark=False, parent=self)
+        card_last.setFixedSize(228, 78)
         c3 = QVBoxLayout(card_last)
-        c3.setContentsMargins(16, 14, 16, 14)
-        c3.setSpacing(4)
+        c3.setContentsMargins(16, 12, 16, 12)
+        c3.setSpacing(2)
         lbl3 = QLabel("Last check", card_last)
         lbl3.setFont(ThemeTokens.get_font(size_pt=12, weight=500))
         lbl3.setStyleSheet("color: #5C5C63;")
@@ -302,15 +306,13 @@ class DashboardPage(QWidget):
 
         main_layout.addLayout(stat_row)
 
-        # 4. Bottom Row (Live Preview Card 290px + Today Timeline Card)
+        # 4. Bottom Row (Live Preview Card 288px + Today Timeline Card 410px)
         bottom_row = QHBoxLayout()
-        bottom_row.setSpacing(16)
+        bottom_row.setSpacing(14)
 
-        # 4a. Left: Live preview card (290px)
+        # 4a. Left: Live preview card (288px)
         self.preview_card = MacCard(is_hero=False, is_dark=False, parent=self)
-        self.preview_card.setMinimumWidth(220)
-        self.preview_card.setMaximumWidth(310)
-        self.preview_card.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.preview_card.setFixedSize(288, 270)
         p_layout = QVBoxLayout(self.preview_card)
         p_layout.setContentsMargins(16, 14, 16, 14)
         p_layout.setSpacing(10)
@@ -329,7 +331,7 @@ class DashboardPage(QWidget):
 
         # Stack between Privacy Box and Camera View
         self.preview_stack = QStackedWidget(self.preview_card)
-        self.preview_stack.setFixedHeight(190)
+        self.preview_stack.setFixedHeight(205)
 
         # Privacy Box (Dark box with camera icon & privacy message)
         privacy_box = QFrame(self.preview_stack)
@@ -381,8 +383,9 @@ class DashboardPage(QWidget):
 
         bottom_row.addWidget(self.preview_card)
 
-        # 4b. Right: Today Timeline Card
+        # 4b. Right: Today Timeline Card (410px)
         today_card = MacCard(is_hero=False, is_dark=False, parent=self)
+        today_card.setFixedSize(410, 270)
         t_layout = QVBoxLayout(today_card)
         t_layout.setContentsMargins(18, 14, 18, 14)
         t_layout.setSpacing(4)
@@ -415,8 +418,8 @@ class DashboardPage(QWidget):
 
         # 4 Timeline Event Rows matching uploaded design exactly
         row1 = TimelineRow("welcome", "Welcome back", "Owner recognized", "09:41", has_divider=True, parent=today_card)
-        row2 = TimelineRow("away", "Owner away", "No one in frame; monitoring", "09:26", has_divider=True, parent=today_card)
-        row3 = TimelineRow("locked", "Locked: unknown person", "Two unknown checks; photo saved", "09:03", has_divider=True, parent=today_card)
+        row2 = TimelineRow("away", "Owner away", "Nobody in frame, still monitoring", "09:26", has_divider=True, parent=today_card)
+        row3 = TimelineRow("locked", "Locked: unknown person", "Two checks in a row, photo saved", "09:03", has_divider=True, parent=today_card)
         row4 = TimelineRow("started", "Protection started", "Balanced preset", "08:58", has_divider=False, parent=today_card)
 
         t_layout.addWidget(row1)
