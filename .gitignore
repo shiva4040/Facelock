@@ -1,0 +1,30 @@
+# Local Python environments
+.env/
+.venv/
+venv/
+
+# Python and test caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# PyInstaller output and local app packages
+build/
+build-*/
+dist/
+dist-*/
+*.spec.bak
+
+# Local runtime data and logs
+.facelock/
+*.log
+*.lock
+*.tmp
+
+# Common editor/OS noise
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
