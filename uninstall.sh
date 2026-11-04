@@ -63,3 +63,4 @@ echo "FaceLock has been removed from your system."
 echo "==================================================================="
 echo ""
 exit 0
+

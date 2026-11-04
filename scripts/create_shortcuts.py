@@ -55,3 +55,4 @@ def create_shortcuts():
 
 if __name__ == "__main__":
     create_shortcuts()
+

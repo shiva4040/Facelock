@@ -12,3 +12,4 @@ else
     echo "[ERROR] Python 3 was not found. Please run ./install.sh first."
     exit 1
 fi
+

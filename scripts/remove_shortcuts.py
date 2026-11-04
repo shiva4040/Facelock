@@ -32,3 +32,4 @@ def remove_shortcuts():
 
 if __name__ == "__main__":
     remove_shortcuts()
+
